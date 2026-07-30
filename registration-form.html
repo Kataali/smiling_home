@@ -95,9 +95,29 @@
               </div>
               <div class="field-error">Please let us know if you'd like to donate.</div>
             </div>
-            <div id="paymentSuccessSection" class="donation-box" style="display:none;">
-              <p><strong>8.</strong> <strong>Payment successful.</strong> Thank you for your donation to Smiling Home Islamic Institute.</p>
-              <p class="payment-hint" id="paymentSuccessReference"></p>
+            <div id="paymentSuccessSection" class="payment-success-card" style="display:none;" role="status" aria-live="polite">
+              <div class="payment-success-header">
+                <div class="payment-success-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4.2 4.2L19.5 6"/></svg>
+                </div>
+                <div>
+                  <span class="payment-success-kicker">Donation received</span>
+                  <h3>Payment successful</h3>
+                </div>
+                <div class="verified-pill"><span aria-hidden="true">✓</span> Verified</div>
+              </div>
+              <p class="payment-success-copy">Thank you for supporting Smiling Home Islamic Institute. Your contribution has been confirmed securely.</p>
+              <div class="payment-summary">
+                <div class="payment-summary-item">
+                  <span>Donation amount</span>
+                  <strong id="paymentSuccessAmount"></strong>
+                </div>
+                <div class="payment-summary-item payment-reference">
+                  <span>Payment reference</span>
+                  <strong id="paymentSuccessReference"></strong>
+                </div>
+              </div>
+              <p class="payment-success-next"><span aria-hidden="true">→</span> Your donation choice has been saved. Please continue with the remaining questions and submit your registration.</p>
             </div>
           </fieldset>
 

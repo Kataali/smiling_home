@@ -70,10 +70,11 @@
     document.getElementById('donationAmountWrap').style.display = donating ? 'block' : 'none';
   }
 
-  function showPaymentSuccess(reference){
+  function showPaymentSuccess(reference, amount){
     document.querySelector('.donation-box').style.display = 'none';
     document.getElementById('paymentSuccessSection').style.display = 'block';
-    document.getElementById('paymentSuccessReference').textContent = reference ? `Payment reference: ${reference}` : '';
+    document.getElementById('paymentSuccessReference').textContent = reference || '—';
+    document.getElementById('paymentSuccessAmount').textContent = amount || 'Donation confirmed';
   }
 
   async function restoreReturnedPayment(){
@@ -100,8 +101,11 @@
       }
 
       document.querySelector('input[name="donate"][value="Yes"]').checked = true;
-      completedPayment = { referenceId: result.reference || reference };
-      showPaymentSuccess(completedPayment.referenceId);
+      completedPayment = {
+        referenceId: result.reference || reference,
+        amount: pending.formValues?.donationAmount || ''
+      };
+      showPaymentSuccess(completedPayment.referenceId, completedPayment.amount);
       window.sessionStorage.removeItem(PENDING_PAYMENT_KEY);
       window.history.replaceState({}, '', window.location.pathname);
     }catch(err){
