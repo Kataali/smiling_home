@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smiling Home Islamic Institute — Course Registration</title>
+<link rel="icon" type="image/jpeg" href="assets/images/logo.jpg">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -90,7 +91,7 @@
                 <div class="field-error" id="momoNumberError">Please enter your MoMo number.</div>
 
                 <button type="button" id="payNowBtn" class="pay-btn" onclick="startPaystackPayment()">Proceed to Pay</button>
-                <p class="payment-hint">This payment step is separate from registration. You can register first, then pay later.</p>
+                <p class="payment-hint">This payment step is separate from registration. You must pay first by clicking the button above before can continue with the registration.</p>
               </div>
               <div class="field-error">Please let us know if you'd like to donate.</div>
             </div>
@@ -141,7 +142,7 @@
         <button class="export-btn" onclick="checkPasscode()">Enter</button>
       </div>
       <p class="note" id="passcodeError" style="color:var(--error);display:none;">Incorrect code.</p>
-      <p class="note">Default code is <strong>smilinghome2026</strong> — change this in the page source (search for CODE = ) before sharing this form.</p>
+      <!-- <p class="note">Default code is <strong>smilinghome2026</strong> — change this in the page source (search for CODE = ) before sharing this form.</p> -->
     </div>
 
     <div id="adminTable" style="display:none;">
