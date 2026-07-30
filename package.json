@@ -1,0 +1,9 @@
+{
+  "name": "smiling-home-registration",
+  "version": "1.0.0",
+  "description": "Simple registration form with optional MTN MoMo payment integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

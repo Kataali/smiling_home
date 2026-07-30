@@ -79,8 +79,16 @@
                 <label class="radio-option"><input type="radio" name="donate" value="No"> No</label>
               </div>
               <div id="donationAmountWrap">
-                <label for="donationAmount" style="margin-top:10px;">Amount (optional)</label>
+                <label for="donationAmount" style="margin-top:10px;">Amount (required for payment)</label>
                 <input type="text" id="donationAmount" name="donationAmount" placeholder="e.g. GHS 50">
+                <div class="field-error" id="donationAmountError">Please enter a valid donation amount.</div>
+
+                <label for="momoNumber" style="margin-top:14px;">MTN MoMo Number</label>
+                <input type="tel" id="momoNumber" name="momoNumber" placeholder="e.g. 024xxxxxxx">
+                <div class="field-error" id="momoNumberError">Please enter your MoMo number.</div>
+
+                <button type="button" id="payNowBtn" class="pay-btn" onclick="startPaystackPayment()">Proceed to Pay</button>
+                <p class="payment-hint">This payment step is separate from registration. You can register first, then pay later.</p>
               </div>
               <div class="field-error">Please let us know if you'd like to donate.</div>
             </div>
@@ -106,8 +114,9 @@
       <div class="success-box" id="successView">
         <div class="check">✓</div>
         <h2>Registration received</h2>
-        <p>Jazakumullahu khayran — thank you for registering. We look forward to having you on the course.</p>
-        <a href="https://chat.whatsapp.com/REPLACE-WITH-YOUR-GROUP-LINK" target="_blank" rel="noopener" id="whatsappLink" class="whatsapp-btn" onclick="markWhatsappClicked()">
+        <p id="successMessage">Jazakumullahu khayran — thank you for registering. We look forward to having you on the course.</p>
+        <p id="paymentStatusNote" class="note" style="display:none;margin-top:8px;"></p>
+        <a href="https://chat.whatsapp.com/IKCMCFNDdKEG843pjdLvMQ?s=cl&p=a&ilr=4" target="_blank" rel="noopener" id="whatsappLink" class="whatsapp-btn" onclick="markWhatsappClicked()">
           <span class="wa-icon">✆</span> Join the Course WhatsApp Group
         </a>
         <p class="note" style="margin-top:14px;">You'll receive course updates and materials in this group.</p>
@@ -148,7 +157,7 @@
             <tr>
               <th>#</th><th>Date</th><th>Name</th><th>Profession</th><th>Country</th><th>City/Town</th>
               <th>Marital Status</th><th>Email</th><th>Contact</th><th>Donate?</th><th>Amount</th>
-              <th>WhatsApp Joined?</th><th>Biggest Challenge</th><th>Suggested Solution</th>
+              <th>Payment Status</th><th>Payment Ref</th><th>WhatsApp Joined?</th><th>Biggest Challenge</th><th>Suggested Solution</th>
             </tr>
           </thead>
           <tbody id="adminTbody"></tbody>

@@ -39,6 +39,10 @@
 
   ensureStorageAdapter();
 
+  const API_ORIGIN = (window.location.protocol === 'file:' || ((window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') && window.location.port === '5500'))
+    ? 'http://127.0.0.1:3001'
+    : '';
+
   // Show/hide donation amount field
   document.querySelectorAll('input[name="donate"]').forEach(r => {
     r.addEventListener('change', () => {
@@ -72,7 +76,131 @@
       showError(fs, !ok);
       if(!ok) valid = false;
     });
+
+    const donateYes = document.querySelector('input[name="donate"]:checked')?.value === 'Yes';
+    const amountField = document.getElementById('donationAmount');
+    const amountError = document.getElementById('donationAmountError');
+
+    if(donateYes){
+      const amount = parseDonationAmount(amountField.value);
+      if(!amount){
+        amountError.style.display = 'block';
+        valid = false;
+      } else {
+        amountError.style.display = 'none';
+      }
+    } else {
+      amountError.style.display = 'none';
+    }
+
     return valid;
+  }
+
+  function validatePaymentInputs(){
+    const donateYes = document.querySelector('input[name="donate"]:checked')?.value === 'Yes';
+    const amountField = document.getElementById('donationAmount');
+    const momoField = document.getElementById('momoNumber');
+    const amountError = document.getElementById('donationAmountError');
+    const momoError = document.getElementById('momoNumberError');
+
+    let valid = true;
+    const amount = parseDonationAmount(amountField.value);
+    if(!donateYes || !amount){
+      amountError.style.display = donateYes ? 'block' : 'none';
+      valid = false;
+    } else {
+      amountError.style.display = 'none';
+    }
+
+    if(!donateYes || !momoField.value.trim()){
+      momoError.style.display = donateYes ? 'block' : 'none';
+      if(donateYes) valid = false;
+    } else {
+      momoError.style.display = 'none';
+    }
+
+    return valid;
+  }
+
+  function parseDonationAmount(rawValue){
+    const cleaned = String(rawValue || '').replace(/[^\d.]/g, '');
+    if(!cleaned) return null;
+    const amount = Number(cleaned);
+    return Number.isFinite(amount) && amount > 0 ? amount : null;
+  }
+
+  async function maybeProcessPayment(entry){
+    if(entry.donate !== 'Yes') return { success: true, skipped: true, message: '' };
+
+    const amount = parseDonationAmount(entry.donationAmount);
+    if(!amount){
+      return { success: false, skipped: false, message: 'Please enter a valid donation amount for the payment request.' };
+    }
+
+    try{
+      const res = await fetch(`${API_ORIGIN}/api/paystack/initialize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: Number(amount.toFixed(2)),
+          email: entry.email,
+          fullName: entry.fullName,
+          registrationId: entry.registrationId || currentEntryKey || '',
+          momoNumber: entry.momoNumber || ''
+        })
+      });
+      const data = await res.json();
+      if(!res.ok || !data?.success){
+        return { success: false, skipped: false, message: data?.message || 'The Paystack payment could not be started.' };
+      }
+      return { success: true, skipped: false, referenceId: data.reference || '', authorizationUrl: data.authorizationUrl || '', message: 'You will be redirected to Paystack to complete the donation.' };
+    }catch(err){
+      console.error(err);
+      return { success: false, skipped: false, message: 'The Paystack payment could not be started right now.' };
+    }
+  }
+
+  async function startPaystackPayment(){
+    if(!validatePaymentInputs()) return;
+
+    const fd = new FormData(form);
+    const entry = {
+      timestamp: new Date().toISOString(),
+      fullName: fd.get('fullName')?.trim(),
+      profession: fd.get('profession')?.trim(),
+      country: fd.get('country')?.trim(),
+      city: fd.get('city')?.trim(),
+      marital: fd.get('marital'),
+      email: fd.get('email')?.trim(),
+      contact: fd.get('contact')?.trim(),
+      donate: fd.get('donate'),
+      donationAmount: fd.get('donationAmount')?.trim() || '',
+      momoNumber: fd.get('momoNumber')?.trim() || '',
+      paymentStatus: 'not-requested',
+      paymentReferenceId: '',
+      paymentMessage: ''
+    };
+
+    const payBtn = document.getElementById('payNowBtn');
+    const originalText = payBtn.textContent;
+    payBtn.disabled = true;
+    payBtn.textContent = 'Processing...';
+
+    try{
+      const paymentResult = await maybeProcessPayment(entry);
+      if(paymentResult.success && paymentResult.authorizationUrl){
+        window.location.assign(paymentResult.authorizationUrl);
+        return;
+      }
+
+      alert(paymentResult.message || 'Could not start payment.');
+    }catch(err){
+      console.error(err);
+      alert('Could not start payment. Please try again.');
+    }finally{
+      payBtn.disabled = false;
+      payBtn.textContent = originalText;
+    }
   }
 
   form.addEventListener('submit', async (e) => {
@@ -91,8 +219,12 @@
       contact: fd.get('contact')?.trim(),
       donate: fd.get('donate'),
       donationAmount: fd.get('donationAmount')?.trim() || '',
+      momoNumber: fd.get('momoNumber')?.trim() || '',
       challenge: fd.get('challenge')?.trim(),
-      solution: fd.get('solution')?.trim()
+      solution: fd.get('solution')?.trim(),
+      paymentStatus: 'not-requested',
+      paymentReferenceId: '',
+      paymentMessage: ''
     };
 
     const id = Date.now() + '-' + Math.random().toString(36).slice(2,8);
@@ -103,7 +235,17 @@
     submitBtn.textContent = 'Submitting...';
 
     try{
+      entry.paymentStatus = 'not-requested';
+      entry.paymentReferenceId = '';
+      entry.paymentMessage = '';
       await window.storage.set(currentEntryKey, JSON.stringify(entry), true);
+
+      const successMessage = document.getElementById('successMessage');
+      const paymentStatusNote = document.getElementById('paymentStatusNote');
+      successMessage.textContent = 'Registration received. Thank you for supporting the course.';
+      paymentStatusNote.textContent = 'You can now proceed to pay separately using the button shown in the donation section.';
+      paymentStatusNote.style.display = 'block';
+
       document.getElementById('registrationView').style.display = 'none';
       document.getElementById('successView').style.display = 'block';
     }catch(err){
@@ -136,6 +278,9 @@
     document.getElementById('donationAmountWrap').style.display = 'none';
     document.getElementById('registrationView').style.display = 'block';
     document.getElementById('successView').style.display = 'none';
+    document.getElementById('paymentStatusNote').style.display = 'none';
+    document.getElementById('paymentStatusNote').textContent = '';
+    document.getElementById('successMessage').textContent = 'Jazakumullahu khayran — thank you for registering. We look forward to having you on the course.';
   }
 
   // ---------- Admin ----------
@@ -173,7 +318,7 @@
       renderTable(entries);
     }catch(e){
       console.error(e);
-      document.getElementById('adminTbody').innerHTML = '<tr><td colspan="13">Could not load registrations.</td></tr>';
+      document.getElementById('adminTbody').innerHTML = '<tr><td colspan="16">Could not load registrations.</td></tr>';
     }
   }
 
@@ -181,7 +326,7 @@
     document.getElementById('regCount').textContent = entries.length + ' registration' + (entries.length === 1 ? '' : 's');
     const tbody = document.getElementById('adminTbody');
     if(!entries.length){
-      tbody.innerHTML = '<tr><td colspan="14" class="empty-state">No registrations to show yet.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="16" class="empty-state">No registrations to show yet.</td></tr>';
       return;
     }
     tbody.innerHTML = entries.map((e, i) => `
@@ -197,6 +342,8 @@
         <td>${escapeHtml(e.contact)}</td>
         <td>${escapeHtml(e.donate)}</td>
         <td>${escapeHtml(e.donationAmount)}</td>
+        <td>${escapeHtml(e.paymentStatus || 'not-requested')}</td>
+        <td>${escapeHtml(e.paymentReferenceId || '')}</td>
         <td>${e.whatsappClicked ? 'Yes' : 'No'}</td>
         <td>${escapeHtml(e.challenge)}</td>
         <td>${escapeHtml(e.solution)}</td>
@@ -232,10 +379,10 @@
 
   function exportCSV(){
     if(!allEntries.length){ alert('No registrations to export yet.'); return; }
-    const headers = ['Date','Name','Profession','Country','City/Town','Marital Status','Email','Contact','Donate?','Amount','WhatsApp Joined?','Biggest Challenge','Suggested Solution'];
+    const headers = ['Date','Name','Profession','Country','City/Town','Marital Status','Email','Contact','Donate?','Amount','Payment Status','Payment Ref','WhatsApp Joined?','Biggest Challenge','Suggested Solution'];
     const rows = allEntries.map(e => [
       new Date(e.timestamp).toLocaleString(), e.fullName, e.profession, e.country, e.city,
-      e.marital, e.email, e.contact, e.donate, e.donationAmount, e.whatsappClicked ? 'Yes' : 'No', e.challenge, e.solution
+      e.marital, e.email, e.contact, e.donate, e.donationAmount, e.paymentStatus || 'not-requested', e.paymentReferenceId || '', e.whatsappClicked ? 'Yes' : 'No', e.challenge, e.solution
     ]);
     const csv = [headers, ...rows].map(r =>
       r.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')
