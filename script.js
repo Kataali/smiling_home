@@ -52,6 +52,63 @@
   });
 
   const form = document.getElementById('regForm');
+  const PENDING_PAYMENT_KEY = 'smiling-home:pending-paystack-payment';
+  let completedPayment = null;
+
+  function restoreFormValues(values){
+    Object.entries(values || {}).forEach(([name, value]) => {
+      const field = form.elements.namedItem(name);
+      if(!field) return;
+      if(field instanceof RadioNodeList){
+        field.value = value;
+      }else{
+        field.value = value;
+      }
+    });
+
+    const donating = document.querySelector('input[name="donate"]:checked')?.value === 'Yes';
+    document.getElementById('donationAmountWrap').style.display = donating ? 'block' : 'none';
+  }
+
+  function showPaymentSuccess(reference){
+    document.querySelector('.donation-box').style.display = 'none';
+    document.getElementById('paymentSuccessSection').style.display = 'block';
+    document.getElementById('paymentSuccessReference').textContent = reference ? `Payment reference: ${reference}` : '';
+  }
+
+  async function restoreReturnedPayment(){
+    const params = new URLSearchParams(window.location.search);
+    const reference = params.get('reference') || '';
+    if(params.get('payment') !== 'returned' || !reference) return;
+
+    let pending;
+    try{
+      pending = JSON.parse(window.sessionStorage.getItem(PENDING_PAYMENT_KEY) || 'null');
+    }catch(e){
+      window.sessionStorage.removeItem(PENDING_PAYMENT_KEY);
+      return;
+    }
+    if(!pending || pending.referenceId !== reference) return;
+
+    restoreFormValues(pending.formValues);
+    try{
+      const res = await fetch(`${API_ORIGIN}/api/paystack/verify?reference=${encodeURIComponent(reference)}`);
+      const result = await res.json();
+      if(!res.ok || !result.success){
+        alert(result.message || 'Your payment could not be verified. Please try again.');
+        return;
+      }
+
+      document.querySelector('input[name="donate"][value="Yes"]').checked = true;
+      completedPayment = { referenceId: result.reference || reference };
+      showPaymentSuccess(completedPayment.referenceId);
+      window.sessionStorage.removeItem(PENDING_PAYMENT_KEY);
+      window.history.replaceState({}, '', window.location.pathname);
+    }catch(err){
+      console.error(err);
+      alert('Your payment could not be verified right now. Please refresh the page and try again.');
+    }
+  }
 
   function showError(fieldset, show){
     const err = fieldset.querySelector('.field-error');
@@ -189,6 +246,10 @@
     try{
       const paymentResult = await maybeProcessPayment(entry);
       if(paymentResult.success && paymentResult.authorizationUrl){
+        window.sessionStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify({
+          formValues: Object.fromEntries(new FormData(form).entries()),
+          referenceId: paymentResult.referenceId
+        }));
         window.location.assign(paymentResult.authorizationUrl);
         return;
       }
@@ -217,14 +278,14 @@
       marital: fd.get('marital'),
       email: fd.get('email')?.trim(),
       contact: fd.get('contact')?.trim(),
-      donate: fd.get('donate'),
+      donate: completedPayment ? 'Yes' : fd.get('donate'),
       donationAmount: fd.get('donationAmount')?.trim() || '',
       momoNumber: fd.get('momoNumber')?.trim() || '',
       challenge: fd.get('challenge')?.trim(),
       solution: fd.get('solution')?.trim(),
-      paymentStatus: 'not-requested',
-      paymentReferenceId: '',
-      paymentMessage: ''
+      paymentStatus: completedPayment ? 'success' : 'not-requested',
+      paymentReferenceId: completedPayment?.referenceId || '',
+      paymentMessage: completedPayment ? 'Payment verified by Paystack.' : ''
     };
 
     const id = Date.now() + '-' + Math.random().toString(36).slice(2,8);
@@ -235,9 +296,6 @@
     submitBtn.textContent = 'Submitting...';
 
     try{
-      entry.paymentStatus = 'not-requested';
-      entry.paymentReferenceId = '';
-      entry.paymentMessage = '';
       await window.storage.set(currentEntryKey, JSON.stringify(entry), true);
 
       const successMessage = document.getElementById('successMessage');
@@ -258,6 +316,7 @@
   });
 
   let currentEntryKey = null;
+  restoreReturnedPayment();
 
   async function markWhatsappClicked(){
     if(!currentEntryKey) return;
@@ -275,6 +334,9 @@
   function resetForm(){
     form.reset();
     currentEntryKey = null;
+    completedPayment = null;
+    document.querySelector('.donation-box').style.display = 'block';
+    document.getElementById('paymentSuccessSection').style.display = 'none';
     document.getElementById('donationAmountWrap').style.display = 'none';
     document.getElementById('registrationView').style.display = 'block';
     document.getElementById('successView').style.display = 'none';

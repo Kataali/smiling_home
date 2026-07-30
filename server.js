@@ -207,6 +207,37 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'GET' && reqUrl.pathname === '/api/paystack/verify') {
+    try {
+      const reference = String(reqUrl.searchParams.get('reference') || '').trim();
+      const secretKey = process.env.PAYSTACK_SECRET_KEY;
+      if (!reference) {
+        sendJson(res, 400, { success: false, message: 'A payment reference is required.' });
+        return;
+      }
+      if (!secretKey) {
+        throw new Error('PAYSTACK_SECRET_KEY is not configured.');
+      }
+
+      const response = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
+        headers: { Authorization: `Bearer ${secretKey}` }
+      });
+      const data = await response.json();
+      const payment = data?.data || {};
+      const paid = response.ok && data?.status === true && payment.status === 'success';
+
+      sendJson(res, 200, {
+        success: paid,
+        status: payment.status || 'unknown',
+        reference: payment.reference || reference,
+        message: paid ? 'Payment verified.' : (data?.message || 'Payment has not been completed.')
+      });
+    } catch (error) {
+      sendJson(res, 500, { success: false, message: error.message || 'Could not verify the payment.' });
+    }
+    return;
+  }
+
   // Paystack opens the configured callback URL in the customer's browser after
   // checkout, which is a GET request. Payment events are delivered separately
   // to the POST handler below when this URL is used as a webhook endpoint.
