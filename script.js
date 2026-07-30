@@ -55,6 +55,42 @@
   const PENDING_PAYMENT_KEY = 'smiling-home:pending-paystack-payment';
   let completedPayment = null;
 
+  function createPaymentSuccessSection(){
+    const section = document.createElement('div');
+    section.id = 'paymentSuccessSection';
+    section.className = 'payment-success-card';
+    section.setAttribute('role', 'status');
+    section.setAttribute('aria-live', 'polite');
+    section.hidden = true;
+    section.innerHTML = `
+      <div class="payment-success-header">
+        <div class="payment-success-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4.2 4.2L19.5 6"/></svg>
+        </div>
+        <div>
+          <span class="payment-success-kicker">Donation received</span>
+          <h3>Payment successful</h3>
+        </div>
+        <div class="verified-pill"><span aria-hidden="true">✓</span> Verified</div>
+      </div>
+      <p class="payment-success-copy">Thank you for supporting Smiling Home Islamic Institute. Your contribution has been confirmed securely.</p>
+      <div class="payment-summary">
+        <div class="payment-summary-item">
+          <span>Donation amount</span>
+          <strong id="paymentSuccessAmount"></strong>
+        </div>
+        <div class="payment-summary-item payment-reference">
+          <span>Payment reference</span>
+          <strong id="paymentSuccessReference"></strong>
+        </div>
+      </div>
+      <p class="payment-success-next"><span aria-hidden="true">→</span> Your donation choice has been saved. Please continue with the remaining questions and submit your registration.</p>`;
+    document.querySelector('.donation-box').insertAdjacentElement('afterend', section);
+    return section;
+  }
+
+  const paymentSuccessSection = createPaymentSuccessSection();
+
   function restoreFormValues(values){
     Object.entries(values || {}).forEach(([name, value]) => {
       const field = form.elements.namedItem(name);
@@ -72,7 +108,7 @@
 
   function showPaymentSuccess(reference, amount){
     document.querySelector('.donation-box').style.display = 'none';
-    document.getElementById('paymentSuccessSection').style.display = 'block';
+    paymentSuccessSection.hidden = false;
     document.getElementById('paymentSuccessReference').textContent = reference || '—';
     document.getElementById('paymentSuccessAmount').textContent = amount || 'Donation confirmed';
   }
@@ -304,9 +340,8 @@
 
       const successMessage = document.getElementById('successMessage');
       const paymentStatusNote = document.getElementById('paymentStatusNote');
-      successMessage.textContent = 'Registration received. Thank you for supporting the course.';
-      paymentStatusNote.textContent = 'You can now proceed to pay separately using the button shown in the donation section.';
-      paymentStatusNote.style.display = 'block';
+      if (entry.donate === 'Yes') successMessage.textContent = 'Thank you for registering. We look forward to having you on the course. Jazakallahu Khayran for your donation. Click the button below to join the WhatsApp group.';
+      else successMessage.textContent = 'Thank you for registering. We look forward to having you on the course. Click the button below to join the WhatsApp group.';
 
       document.getElementById('registrationView').style.display = 'none';
       document.getElementById('successView').style.display = 'block';
@@ -340,7 +375,7 @@
     currentEntryKey = null;
     completedPayment = null;
     document.querySelector('.donation-box').style.display = 'block';
-    document.getElementById('paymentSuccessSection').style.display = 'none';
+    paymentSuccessSection.hidden = true;
     document.getElementById('donationAmountWrap').style.display = 'none';
     document.getElementById('registrationView').style.display = 'block';
     document.getElementById('successView').style.display = 'none';
