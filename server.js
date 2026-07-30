@@ -207,6 +207,19 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Paystack opens the configured callback URL in the customer's browser after
+  // checkout, which is a GET request. Payment events are delivered separately
+  // to the POST handler below when this URL is used as a webhook endpoint.
+  if (req.method === 'GET' && reqUrl.pathname === '/api/paystack/callback') {
+    const reference = reqUrl.searchParams.get('reference') || '';
+    const destination = reference
+      ? `/?payment=returned&reference=${encodeURIComponent(reference)}`
+      : '/?payment=returned';
+    res.writeHead(302, { Location: destination });
+    res.end();
+    return;
+  }
+
   if (req.method === 'POST' && reqUrl.pathname === '/api/paystack/callback') {
     try {
       // Capture raw body for signature verification
