@@ -115,6 +115,37 @@ function savePaymentsStore(store) {
   fs.writeFileSync(PAYMENTS_STORE_FILE, JSON.stringify(store, null, 2), 'utf8');
 }
 
+async function saveRegistrationToGoogleSheets(registration) {
+  const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
+  const webhookToken = process.env.GOOGLE_SHEETS_WEBHOOK_TOKEN;
+
+  if (!webhookUrl || !webhookToken) {
+    throw new Error('Google Sheets registration storage is not configured.');
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ token: webhookToken, registration }),
+      signal: controller.signal
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || 'Google Sheets could not save the registration.');
+    }
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Saving the registration to Google Sheets timed out.');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function initializePaystackPayment(payment) {
   const secretKey = process.env.PAYSTACK_SECRET_KEY;
   if (!secretKey) {
@@ -203,6 +234,23 @@ const server = http.createServer(async (req, res) => {
         success: false,
         message: error.message || 'The payment request could not be completed.'
       });
+    }
+    return;
+  }
+
+  if (req.method === 'POST' && reqUrl.pathname === '/api/registrations') {
+    try {
+      const registration = await readBody(req);
+      if (!String(registration.fullName || '').trim() || !String(registration.email || '').trim()) {
+        sendJson(res, 400, { success: false, message: 'A name and email address are required.' });
+        return;
+      }
+
+      await saveRegistrationToGoogleSheets(registration);
+      sendJson(res, 201, { success: true, message: 'Registration saved.' });
+    } catch (error) {
+      console.error('[registration]', error.message);
+      sendJson(res, 502, { success: false, message: error.message || 'Could not save the registration.' });
     }
     return;
   }

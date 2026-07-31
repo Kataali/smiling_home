@@ -329,6 +329,7 @@
     };
 
     const id = Date.now() + '-' + Math.random().toString(36).slice(2,8);
+    entry.registrationId = id;
     entry.whatsappClicked = false;
     currentEntryKey = 'registrations:' + id;
     const submitBtn = form.querySelector('.submit-btn');
@@ -336,6 +337,16 @@
     submitBtn.textContent = 'Submitting...';
 
     try{
+      const registrationResponse = await fetch('/api/registrations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry)
+      });
+      const registrationResult = await registrationResponse.json();
+      if(!registrationResponse.ok || !registrationResult.success){
+        throw new Error(registrationResult.message || 'Could not save your registration.');
+      }
+
       await window.storage.set(currentEntryKey, JSON.stringify(entry), true);
 
       const successMessage = document.getElementById('successMessage');
@@ -346,7 +357,7 @@
       document.getElementById('registrationView').style.display = 'none';
       document.getElementById('successView').style.display = 'block';
     }catch(err){
-      alert('Something went wrong submitting your registration. Please try again.');
+      alert(err.message || 'Something went wrong submitting your registration. Please try again.');
       console.error(err);
     }finally{
       submitBtn.disabled = false;
