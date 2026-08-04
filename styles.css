@@ -68,6 +68,67 @@
   }
   /* ---------- Body ---------- */
   .content{padding:28px 32px 36px;}
+  .site-nav{
+    display:flex;
+    justify-content:flex-end;
+    padding:12px 32px;
+    border-bottom:1px solid var(--border);
+    background:var(--green-50);
+  }
+  .site-nav a{
+    color:var(--green-900);
+    font-size:.87rem;
+    font-weight:700;
+    text-decoration:none;
+  }
+  .site-nav a:hover,.site-nav a:focus-visible{text-decoration:underline;}
+  .facilitators-content{padding:38px 32px 42px;}
+  .eyebrow{
+    margin:0 0 7px;
+    color:var(--gold-500);
+    font-size:.78rem;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  .facilitators-content h2{
+    margin:0;
+    color:var(--green-900);
+    font-size:1.7rem;
+  }
+  .facilitators-intro{margin:10px 0 28px;color:var(--muted);}
+  .facilitator-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:18px;
+  }
+  .facilitator-card{
+    margin:0;
+    overflow:hidden;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--white);
+    box-shadow:0 1px 3px rgba(0,0,0,.06);
+  }
+  .facilitator-card img{display:block;width:100%;height:auto;}
+  .facilitator-card figcaption{
+    padding:11px 12px;
+    color:var(--green-900);
+    font-size:.88rem;
+    font-weight:700;
+  }
+  .facilitators-register-link{
+    display:inline-block;
+    margin-top:30px;
+    padding:12px 18px;
+    border-radius:7px;
+    background:var(--green-900);
+    color:var(--white);
+    font-size:.9rem;
+    font-weight:700;
+    text-decoration:none;
+  }
+  .facilitators-register-link:hover,.facilitators-register-link:focus-visible{background:var(--green-700);}
   .form-title{
     font-size:1.05rem;
     font-weight:700;
@@ -271,6 +332,11 @@
     .logo-slot{width:50px;height:50px;font-size:9px;}
     .org-text h1{font-size:1.05rem;}
     .content{padding:20px 18px 28px;}
+    .site-nav{padding:11px 18px;}
+    .facilitators-content{padding:28px 18px 34px;}
+    .facilitators-content h2{font-size:1.45rem;}
+    .facilitator-grid{grid-template-columns:1fr;gap:16px;}
+    .facilitator-card{max-width:420px;}
     .row2{grid-template-columns:1fr;gap:0;}
     input[type="text"], input[type="email"], input[type="tel"],
     input[type="number"], textarea, .submit-btn{font-size:16px;} /* prevents iOS zoom-on-focus */
