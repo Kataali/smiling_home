@@ -67,6 +67,29 @@
     color:var(--gold-100);
   }
   /* ---------- Body ---------- */
+  .page-callout{
+    margin:18px 0 24px;
+    padding:16px 18px;
+    border-radius:10px;
+    background:var(--green-50);
+    border:1px solid var(--border);
+  }
+  .page-callout p{
+    margin:0;
+    color:var(--ink);
+    font-size:.95rem;
+    line-height:1.5;
+  }
+  .page-callout a,
+  .page-callout a:visited{
+    color:var(--green-900);
+    font-weight:700;
+    text-decoration:none;
+  }
+  .page-callout a:hover,
+  .page-callout a:focus-visible{
+    text-decoration:underline;
+  }
   .content{padding:28px 32px 36px;}
   .site-nav{
     display:flex;
@@ -83,6 +106,10 @@
   }
   .site-nav a:hover,.site-nav a:focus-visible{text-decoration:underline;}
   .facilitators-content{padding:38px 32px 42px;}
+
+  @media (max-width: 900px){
+    .facilitator-grid{grid-template-columns:repeat(2, minmax(0, 1fr));}
+  }
   .eyebrow{
     margin:0 0 7px;
     color:var(--gold-500);
@@ -109,13 +136,28 @@
     border-radius:10px;
     background:var(--white);
     box-shadow:0 1px 3px rgba(0,0,0,.06);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .facilitator-card:hover,
+  .facilitator-card:focus-within{
+    transform:translateY(-2px);
+    box-shadow:0 6px 18px rgba(15,61,46,.12);
   }
   .facilitator-card img{display:block;width:100%;height:auto;}
   .facilitator-card figcaption{
-    padding:11px 12px;
+    padding:16px;
     color:var(--green-900);
-    font-size:.88rem;
+  }
+  .facilitator-card figcaption h3{
+    margin:0 0 8px;
+    font-size:1rem;
     font-weight:700;
+  }
+  .facilitator-card figcaption p{
+    margin:0;
+    color:var(--muted);
+    font-size:.95rem;
+    line-height:1.5;
   }
   .facilitators-register-link{
     display:inline-block;
@@ -127,6 +169,7 @@
     font-size:.9rem;
     font-weight:700;
     text-decoration:none;
+    box-shadow:0 8px 18px rgba(15,61,46,.12);
   }
   .facilitators-register-link:hover,.facilitators-register-link:focus-visible{background:var(--green-700);}
   .form-title{
