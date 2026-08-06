@@ -54,6 +54,7 @@
   const form = document.getElementById('regForm');
   const PENDING_PAYMENT_KEY = 'smiling-home:pending-paystack-payment';
   let completedPayment = null;
+  const isDonationPage = document.body.classList.contains('donation-page');
 
   function createPaymentSuccessSection(){
     const section = document.createElement('div');
@@ -304,9 +305,10 @@
     }
   }
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if(!validate()) return;
+  if(!isDonationPage && form){
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if(!validate()) return;
 
     const fd = new FormData(form);
     const entry = {

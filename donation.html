@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Support Smiling Home Islamic Institute with a secure donation to keep the course free and accessible.">
+<title>Donate — Smiling Home Islamic Institute</title>
+<link rel="icon" type="image/jpeg" href="assets/images/logo.jpg">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="donation-page">
+  <main class="sheet">
+    <header class="letterhead">
+      <div class="logo-slot">
+        <img src="assets/images/logo.jpg" alt="Smiling Home logo" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">
+      </div>
+      <div class="org-text">
+        <h1>Smiling Home Islamic Institute</h1>
+        <p>Support the Course</p>
+      </div>
+    </header>
+
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="registration-form.html">Course registration</a>
+      <a href="facilitators.html">Meet the facilitators</a>
+    </nav>
+
+    <section class="facilitators-content" aria-labelledby="donation-title">
+      <p class="eyebrow">Donate with confidence</p>
+      <h2 id="donation-title">Help keep the course free</h2>
+      <p class="facilitators-intro">Your donation supports Smiling Home Islamic Institute and helps us provide quality learning for all participants.</p>
+
+      <div class="page-callout">
+        <p><strong>Ready to support the course?</strong> Enter your details below to donate securely via Paystack and MTN MoMo.</p>
+      </div>
+
+      <form id="regForm" novalidate>
+        <fieldset>
+          <label class="required" for="fullName">Name</label>
+          <input type="text" id="fullName" name="fullName" placeholder="e.g. Amina Yusuf" required>
+          <div class="field-error">Please enter your name.</div>
+        </fieldset>
+
+        <fieldset class="row2">
+          <div>
+            <label class="required" for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required>
+            <div class="field-error">Please enter a valid email address.</div>
+          </div>
+          <div>
+            <label for="contact">Contact (Phone)</label>
+            <input type="tel" id="contact" name="contact" placeholder="e.g. 024xxxxxxx">
+            <div class="field-error">Please enter your contact number.</div>
+          </div>
+        </fieldset>
+
+        <input type="hidden" name="donate" value="Yes">
+
+        <div class="donation-box">
+          <p><strong>Donation amount</strong></p>
+          <div id="donationAmountWrap" style="display:block;">
+            <label for="donationAmount">Amount</label>
+            <input type="text" id="donationAmount" name="donationAmount" placeholder="e.g. GHS 50" required>
+            <div class="field-error" id="donationAmountError">Please enter a valid donation amount.</div>
+
+            <label for="momoNumber" style="margin-top:14px;">MTN MoMo Number</label>
+            <input type="tel" id="momoNumber" name="momoNumber" placeholder="e.g. 024xxxxxxx" required>
+            <div class="field-error" id="momoNumberError">Please enter your MoMo number.</div>
+
+            <button type="button" id="payNowBtn" class="pay-btn" onclick="startPaystackPayment()">Donate Now</button>
+            <p class="payment-hint">Use the button above to proceed with a secure Paystack donation request.</p>
+          </div>
+        </div>
+      </form>
+
+      <div class="page-callout">
+        <p>Have a question? Contact the academic director on WhatsApp: <a href="https://wa.me/233551176376" target="_blank" rel="noopener" class="whatsapp-link">📱 +233 551 176 376</a>.</p>
+      </div>
+    </section>
+  </main>
+
+<script src="script.js"></script>
+</body>
+</html>
