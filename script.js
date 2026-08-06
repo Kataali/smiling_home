@@ -56,6 +56,13 @@
   let completedPayment = null;
   const isDonationPage = document.body.classList.contains('donation-page');
 
+  function isDonationSelected(){
+    const selected = document.querySelector('input[name="donate"]:checked');
+    if(selected) return selected.value === 'Yes';
+    const hiddenDonate = document.querySelector('input[name="donate"][type="hidden"]');
+    return hiddenDonate?.value === 'Yes';
+  }
+
   function createPaymentSuccessSection(){
     const section = document.createElement('div');
     section.id = 'paymentSuccessSection';
@@ -195,7 +202,12 @@
   }
 
   function validatePaymentInputs(){
-    const donateYes = document.querySelector('input[name="donate"]:checked')?.value === 'Yes';
+    if(form && !form.checkValidity()){
+      form.reportValidity();
+      return false;
+    }
+
+    const donateYes = isDonationSelected();
     const amountField = document.getElementById('donationAmount');
     const momoField = document.getElementById('momoNumber');
     const amountError = document.getElementById('donationAmountError');
