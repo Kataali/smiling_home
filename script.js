@@ -54,14 +54,6 @@
   const form = document.getElementById('regForm');
   const PENDING_PAYMENT_KEY = 'smiling-home:pending-paystack-payment';
   let completedPayment = null;
-  const isDonationPage = document.body.classList.contains('donation-page');
-
-  function isDonationSelected(){
-    const selected = document.querySelector('input[name="donate"]:checked');
-    if(selected) return selected.value === 'Yes';
-    const hiddenDonate = document.querySelector('input[name="donate"][type="hidden"]');
-    return hiddenDonate?.value === 'Yes';
-  }
 
   function createPaymentSuccessSection(){
     const section = document.createElement('div');
@@ -158,78 +150,69 @@
     }
   }
 
-  function showError(fieldset, show){
-    const err = fieldset.querySelector('.field-error');
-    if(err) err.style.display = show ? 'block' : 'none';
+  function setFieldError(input, errorElement, show){
+    if(input){
+      input.classList.toggle('input-error', show);
+    }
+    if(errorElement){
+      errorElement.style.display = show ? 'block' : 'none';
+    }
+  }
+
+  function validateFieldValue(input){
+    if(!input) return true;
+    if(input.type === 'hidden' || input.type === 'button' || input.type === 'submit') return true;
+
+    const value = input.value.trim();
+    if(input.hasAttribute('required')){
+      if(input.type === 'email'){
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      }
+      if(input.type === 'tel'){
+        return value.length >= 6;
+      }
+      return value.length > 0;
+    }
+
+    return true;
   }
 
   function validate(){
     let valid = true;
-    document.querySelectorAll('#regForm fieldset').forEach(fs=>{
-      const req = fs.querySelector('[required]');
-      if(!req) return;
-      let ok = true;
-      if(req.type === 'radio'){
-        ok = !!fs.querySelector(`input[name="${req.name}"]:checked`);
-      } else if(req.tagName === 'TEXTAREA' || req.type === 'text'){
-        ok = req.value.trim().length > 0;
-      } else if(req.type === 'email'){
-        ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.value.trim());
-      } else if(req.type === 'tel'){
-        ok = req.value.trim().length >= 6;
+
+    form.querySelectorAll('input, textarea').forEach((input) => {
+      if(input.type === 'hidden' || input.type === 'button' || input.type === 'submit') return;
+
+      const fieldset = input.closest('fieldset');
+      const errorElement = fieldset?.querySelector('.field-error') || document.getElementById(`${input.id}Error`);
+      const isRequired = input.hasAttribute('required');
+      const shouldValidate = isRequired || input.id === 'donationAmount' || input.id === 'momoNumber';
+
+      if(!shouldValidate){
+        setFieldError(input, errorElement, false);
+        return;
       }
-      showError(fs, !ok);
+
+      const donateYes = document.querySelector('input[name="donate"]:checked')?.value === 'Yes';
+      let ok = validateFieldValue(input);
+
+      if(input.id === 'donationAmount'){
+        ok = donateYes ? !!parseDonationAmount(input.value) : true;
+      }
+
+      if(input.id === 'momoNumber'){
+        ok = donateYes ? input.value.trim().length > 0 : true;
+      }
+
+      setFieldError(input, errorElement, !ok);
       if(!ok) valid = false;
     });
-
-    const donateYes = document.querySelector('input[name="donate"]:checked')?.value === 'Yes';
-    const amountField = document.getElementById('donationAmount');
-    const amountError = document.getElementById('donationAmountError');
-
-    if(donateYes){
-      const amount = parseDonationAmount(amountField.value);
-      if(!amount){
-        amountError.style.display = 'block';
-        valid = false;
-      } else {
-        amountError.style.display = 'none';
-      }
-    } else {
-      amountError.style.display = 'none';
-    }
 
     return valid;
   }
 
   function validatePaymentInputs(){
-    if(form && !form.checkValidity()){
-      form.reportValidity();
-      return false;
-    }
-
-    const donateYes = isDonationSelected();
-    const amountField = document.getElementById('donationAmount');
-    const momoField = document.getElementById('momoNumber');
-    const amountError = document.getElementById('donationAmountError');
-    const momoError = document.getElementById('momoNumberError');
-
-    let valid = true;
-    const amount = parseDonationAmount(amountField.value);
-    if(!donateYes || !amount){
-      amountError.style.display = donateYes ? 'block' : 'none';
-      valid = false;
-    } else {
-      amountError.style.display = 'none';
-    }
-
-    if(!donateYes || !momoField.value.trim()){
-      momoError.style.display = donateYes ? 'block' : 'none';
-      if(donateYes) valid = false;
-    } else {
-      momoError.style.display = 'none';
-    }
-
-    return valid;
+    return validate();
   }
 
   function parseDonationAmount(rawValue){
@@ -317,10 +300,9 @@
     }
   }
 
-  if(!isDonationPage && form){
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if(!validate()) return;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if(!validate()) return;
 
     const fd = new FormData(form);
     const entry = {
