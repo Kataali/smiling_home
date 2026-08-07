@@ -192,6 +192,37 @@
   .footer-donate-link:hover,.footer-donate-link:focus-visible{
     background:#f5f2de;
   }
+  .signature-badge{
+    position:fixed;
+    right:-24px;
+    bottom:16px;
+    transform:rotate(-12deg);
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:5px 12px 5px 10px;
+    border-radius:999px;
+    background:rgba(90, 102, 95, 0.12);
+    color:#5f665f;
+    font-size:.62rem;
+    font-weight:700;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    border:1px solid rgba(95, 102, 95, 0.18);
+    box-shadow:0 6px 14px rgba(15,61,46,.08);
+    z-index:20;
+    text-decoration:none;
+  }
+  .signature-badge__mark{
+    display:grid;
+    place-items:center;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:rgba(95, 102, 95, 0.14);
+    color:#5f665f;
+    font-size:.6rem;
+  }
 
   @media (max-width: 900px){
     .facilitator-grid{grid-template-columns:repeat(2, minmax(0, 1fr));}
