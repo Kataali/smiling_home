@@ -366,8 +366,11 @@
 
       const successMessage = document.getElementById('successMessage');
       const paymentStatusNote = document.getElementById('paymentStatusNote');
-      if (entry.donate === 'Yes') successMessage.textContent = 'Thank you for registering. We look forward to having you on the course. Jazakallahu Khayran for your donation. Click the button below to join the WhatsApp group.';
-      else successMessage.textContent = 'Thank you for registering. We look forward to having you on the course. Click the button below to join the WhatsApp group.';
+      if (entry.donate === 'Yes') {
+        successMessage.innerHTML = 'Thank you for registering. We look forward to having you on the course. <strong>Jazakallahu Khayran</strong> for your donation. Click the button below to join the WhatsApp group.';
+      } else {
+        successMessage.textContent = 'Thank you for registering. We look forward to having you on the course. Click the button below to join the WhatsApp group.';
+      }
 
       document.getElementById('registrationView').style.display = 'none';
       document.getElementById('successView').style.display = 'block';
