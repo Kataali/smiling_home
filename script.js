@@ -215,10 +215,8 @@
     const donateYes = document.querySelector('input[name="donate"]:checked')?.value === 'Yes';
     const emailField = document.getElementById('email');
     const amountField = document.getElementById('donationAmount');
-    const momoField = document.getElementById('momoNumber');
     const emailError = emailField?.closest('fieldset')?.querySelector('.field-error');
     const amountError = document.getElementById('donationAmountError');
-    const momoError = document.getElementById('momoNumberError');
 
     let valid = true;
 
@@ -230,13 +228,8 @@
       const amountOk = !!parseDonationAmount(amountField?.value);
       setFieldError(amountField, amountError, !amountOk);
       if(!amountOk) valid = false;
-
-      const momoOk = !!momoField?.value.trim();
-      setFieldError(momoField, momoError, !momoOk);
-      if(!momoOk) valid = false;
     } else {
       setFieldError(amountField, amountError, false);
-      setFieldError(momoField, momoError, false);
     }
 
     return valid;
@@ -265,8 +258,7 @@
           amount: Number(amount.toFixed(2)),
           email: entry.email,
           fullName: entry.fullName,
-          registrationId: entry.registrationId || currentEntryKey || '',
-          momoNumber: entry.momoNumber || ''
+          registrationId: entry.registrationId || currentEntryKey || ''
         })
       });
       const data = await res.json();
@@ -295,7 +287,7 @@
       contact: fd.get('contact')?.trim(),
       donate: fd.get('donate'),
       donationAmount: fd.get('donationAmount')?.trim() || '',
-      momoNumber: fd.get('momoNumber')?.trim() || '',
+      momoNumber: '',
       paymentStatus: 'not-requested',
       paymentReferenceId: '',
       paymentMessage: ''
@@ -343,7 +335,7 @@
       contact: fd.get('contact')?.trim(),
       donate: completedPayment ? 'Yes' : fd.get('donate'),
       donationAmount: fd.get('donationAmount')?.trim() || '',
-      momoNumber: fd.get('momoNumber')?.trim() || '',
+      momoNumber: '',
       challenge: fd.get('challenge')?.trim(),
       solution: fd.get('solution')?.trim(),
       paymentStatus: completedPayment ? 'success' : 'not-requested',
