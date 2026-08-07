@@ -73,7 +73,7 @@
         </div>
         <div class="verified-pill"><span aria-hidden="true">✓</span> Verified</div>
       </div>
-      <p class="payment-success-copy">Thank you for supporting Smiling Home Islamic Institute. Your contribution has been confirmed securely.</p>
+      <p class="payment-success-copy">Thank you — your donation has been successfully received. Your support helps keep the course free and accessible.</p>
       <div class="payment-summary">
         <div class="payment-summary-item">
           <span>Donation amount</span>
@@ -212,7 +212,34 @@
   }
 
   function validatePaymentInputs(){
-    return validate();
+    const donateYes = document.querySelector('input[name="donate"]:checked')?.value === 'Yes';
+    const emailField = document.getElementById('email');
+    const amountField = document.getElementById('donationAmount');
+    const momoField = document.getElementById('momoNumber');
+    const emailError = emailField?.closest('fieldset')?.querySelector('.field-error');
+    const amountError = document.getElementById('donationAmountError');
+    const momoError = document.getElementById('momoNumberError');
+
+    let valid = true;
+
+    const emailOk = !emailField || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailField.value.trim());
+    setFieldError(emailField, emailError, !emailOk);
+    if(!emailOk) valid = false;
+
+    if(donateYes){
+      const amountOk = !!parseDonationAmount(amountField?.value);
+      setFieldError(amountField, amountError, !amountOk);
+      if(!amountOk) valid = false;
+
+      const momoOk = !!momoField?.value.trim();
+      setFieldError(momoField, momoError, !momoOk);
+      if(!momoOk) valid = false;
+    } else {
+      setFieldError(amountField, amountError, false);
+      setFieldError(momoField, momoError, false);
+    }
+
+    return valid;
   }
 
   function parseDonationAmount(rawValue){
