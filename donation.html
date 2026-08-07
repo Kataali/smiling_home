@@ -31,16 +31,10 @@
       <p class="facilitators-intro">Your donation supports Smiling Home Islamic Institute and helps us provide quality learning for all participants.</p>
 
       <div class="page-callout">
-        <p><strong>Ready to support the course?</strong> Enter your details below to donate securely via Paystack and MTN MoMo.</p>
+        <p><strong>Ready to support the course?</strong> Enter your details below to donate securely via Paystack and MoMo.</p>
       </div>
-
+      <div class="donation-box">
       <form id="regForm" novalidate>
-        <fieldset>
-          <label class="required" for="fullName">Name</label>
-          <input type="text" id="fullName" name="fullName" placeholder="e.g. Amina Yusuf" required>
-          <div class="field-error">Please enter your name.</div>
-        </fieldset>
-
         <fieldset class="row2">
           <div>
             <label class="required" for="email">Email Address</label>
@@ -48,26 +42,21 @@
             <div class="field-error">Please enter a valid email address.</div>
           </div>
           <div>
-            <label for="contact">Contact (Phone)</label>
-            <input type="tel" id="contact" name="contact" placeholder="e.g. 024xxxxxxx">
-            <div class="field-error">Please enter your contact number.</div>
+            <label class="required" for="donationAmount">Amount</label>
+            <input type="text" id="donationAmount" name="donationAmount" placeholder="e.g. 50" required>
+            <div class="field-error" id="donationAmountError">Please enter a valid donation amount.</div>
           </div>
         </fieldset>
 
         <input type="hidden" name="donate" value="Yes">
 
-        <div class="donation-box">
-          <p><strong>Donation amount</strong></p>
+        
           <div id="donationAmountWrap" style="display:block;">
-            <label for="donationAmount">Amount</label>
-            <input type="text" id="donationAmount" name="donationAmount" placeholder="e.g. 50" required>
-            <div class="field-error" id="donationAmountError">Please enter a valid donation amount.</div>
-
             <button type="button" id="payNowBtn" class="pay-btn" onclick="startPaystackPayment()">Donate Now</button>
             <p class="payment-hint">Use the button above to proceed with a secure Paystack donation request.</p>
           </div>
-        </div>
       </form>
+      </div>
 
       <div class="page-callout contact-banner" role="note">
         <div class="contact-banner__icon" aria-hidden="true">💬</div>
